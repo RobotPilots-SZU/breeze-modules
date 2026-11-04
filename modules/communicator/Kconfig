@@ -1,0 +1,9 @@
+# Copyright (c) 2026 RobotPilots-SZU
+# SPDX-License-Identifier: Apache-2.0
+
+config BREEZE_MODULE_COMMUNICATOR
+	bool "Communicator module"
+	depends on CPP
+	depends on ALGO
+	help
+	  Parses vt / inter-robot / vision protocol streams and exposes typed dataflow ports.
