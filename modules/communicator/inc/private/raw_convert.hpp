@@ -17,21 +17,24 @@
 
 namespace breeze::communicator::internal
 {
+
 struct RawDecoder
 {
 	/**
 	 * @brief 原始数据输入
 	 *
 	 */
-	ramen::Pushable<std::span<std::uint8_t>> In;
+	ramen::Pushable<std::span<const std::uint8_t>> In = [this](const auto& in) { Accept(in); };
 	/**
 	 * @brief protobuf编码数据输出
 	 *
 	 */
-	ramen::Pusher<std::span<std::uint8_t>> Out;
+	ramen::Pusher<std::span<const std::uint8_t>> Out;
+	etl::span<std::uint8_t> Buffer;
+	etl::icircular_buffer<std::uint8_t>& Raw;
 
-	etl::span<std::uint8_t> LinearBuffer;
-	etl::icircular_buffer<std::uint8_t> RingBuffer;
+private:
+	void Accept(std::span<const std::uint8_t> data);
 };
 
 struct RawEncoder
@@ -40,14 +43,15 @@ struct RawEncoder
 	 * @brief protobuf数据输入
 	 *
 	 */
-	ramen::Pushable<std::span<std::uint8_t>> In;
+	ramen::Pushable<std::span<const std::uint8_t>> In = [this](const std::span<const std::uint8_t>& in) { Emit(in); };
 	/**
-	 * @brief 原始数据输出
-	 * @note 我觉得应该能减少拷贝??
+	 * @brief 原始数据输出(流式, 不是一次性输出)
+	 * @note 因为是流式输出, 所以这里仅作数据流动, 不能作为整包触发发送的参考.
 	 *
 	 */
-	ramen::Pusher<std::span<std::uint8_t>> Out;
+	ramen::Pusher<std::span<const std::uint8_t>> Out;
+
+private:
+	void Emit(std::span<const std::uint8_t> in);
 };
-RawDecoder MkRawDecoder();
-RawEncoder MkRawEncoder();
 } // namespace breeze::communicator::internal

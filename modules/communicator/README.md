@@ -20,7 +20,7 @@
 
 ```mermaid
 flowchart LR
-SOF[帧头: 8bit] --- LEN[包长度: 24bit] --- DATA[数据: 包长度byte]
+SOF[帧头0xA7: 8bit] --- LEN[包长度: 24bit] --- DATA[数据: 包长度byte]
 ```
 
 这个协议非常简单, 可以设计状态机来搞. 不过我为了方便还是打算设计一个无状态流式解析来处理.
