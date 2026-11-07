@@ -30,7 +30,7 @@ namespace breeze::models
  * @endcode
  *
  */
-template <typename TEnum, typename TValue, auto TIds, auto TAllValues>
+template <typename TEnum, typename TValue, auto TIds, auto TAllValues = TIds>
 class IndexedEnumArray
 {
 	static constexpr std::size_t N = TAllValues.size();

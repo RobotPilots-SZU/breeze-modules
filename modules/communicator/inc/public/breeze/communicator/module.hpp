@@ -11,6 +11,10 @@
 
 #pragma once
 
+#include "messages.hpp"
+#include <breeze/models/control.hpp>
+#include <breeze/models/game.hpp>
+#include <breeze/models/id.hpp>
 #include <cstdint>
 #include <ramen.hpp>
 #include <span>
@@ -22,13 +26,24 @@ namespace breeze::communicator
  *
  */
 struct Output
-{};
+{
+	ramen::Pusher<messages::DeployCommand> DeployCommand;
+	ramen::Pusher<models::MotionMode> MotionMode;
+};
 /**
  * @brief Model类型的编码前数据.
  *
  */
 struct Input
-{};
+{
+	ramen::Pushable<models::RobotId> Id;
+	ramen::Pushable<messages::ModuleInfos> Modules;
+	ramen::Pushable<messages::ChassisReport> ChassisReport;
+	ramen::Pushable<messages::LegReport> LegReport;
+	ramen::Pushable<models::MotionMode> MotionMode;
+	ramen::Pushable<models::RobotInfos> AllyRobotInfos;
+	ramen::Pushable<models::RobotInfos> EnemyRobotInfos;
+};
 
 class Module
 {
