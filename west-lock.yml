@@ -18,9 +18,17 @@ manifest:
     path: zephyr-extras/ramenx
   - name: zephyr
     url: https://github.com/zephyrproject-rtos/zephyr
-    revision: f3fc249035296b87c75fa808b3abf78829fe9378
+    revision: 0c63b6bfeb0d5dc9f56a156be0248a61ab2bb6bc
     path: zephyr-extras/zephyr
     west-commands: scripts/west-commands.yml
+  - name: nanopb
+    url: https://github.com/nanopb/nanopb
+    revision: 160d4f09e5fabb2b66aa2dea32d4f38ace2c4b3f
+    path: zephyr-extras/nanopb
+  - name: rp-proto
+    url: https://github.com/RobotPilots-SZU/rp-proto
+    revision: 02a6accd2286a97320ed88333d0e464faf769bdd
+    path: zephyr-extras/rp-proto
   - name: etl
     url: https://github.com/ETLCPP/etl.git
     revision: b2c437c13e241ccc28dbd8f4241a2c051eb4f7c0
