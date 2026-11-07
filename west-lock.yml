@@ -27,7 +27,7 @@ manifest:
     path: zephyr-extras/nanopb
   - name: rp-proto
     url: https://github.com/RobotPilots-SZU/rp-proto
-    revision: 02a6accd2286a97320ed88333d0e464faf769bdd
+    revision: 69ef8366a03ced28e38d7aac95f34dfb12ac0d98
     path: zephyr-extras/rp-proto
   - name: etl
     url: https://github.com/ETLCPP/etl.git

@@ -36,13 +36,13 @@ struct Output
  */
 struct Input
 {
-	ramen::Pushable<models::RobotId> Id;
-	ramen::Pushable<messages::ModuleInfos> Modules;
-	ramen::Pushable<messages::ChassisReport> ChassisReport;
-	ramen::Pushable<messages::LegReport> LegReport;
-	ramen::Pushable<models::MotionMode> MotionMode;
-	ramen::Pushable<models::RobotInfos> AllyRobotInfos;
-	ramen::Pushable<models::RobotInfos> EnemyRobotInfos;
+	ramen::Pusher<models::RobotId> Id;
+	ramen::Pusher<messages::ModuleInfos> Modules;
+	ramen::Pusher<messages::ChassisReport> ChassisReport;
+	ramen::Pusher<messages::LegReport> LegReport;
+	ramen::Pusher<models::MotionMode> MotionMode;
+	ramen::Pusher<models::RobotInfos> AllyRobotInfos;
+	ramen::Pusher<models::RobotInfos> EnemyRobotInfos;
 };
 
 class Module
@@ -57,6 +57,7 @@ public:
 	ramen::Pusher<std::span<std::uint8_t>> OutRaw;
 
 	Module();
+	~Module();
 
 public:
 	Module(const Module&) = delete;
@@ -65,8 +66,9 @@ public:
 	Module& operator=(Module&&) = delete;
 
 private:
-	static constexpr auto IMPL_SIZE = 256;
+	static constexpr auto IMPL_SIZE = 16384;
 	struct Impl;
+	static ramen::Pushable<std::span<std::uint8_t>> MakeRawInput(Module& owner);
 	alignas(std::max_align_t) std::byte _storage[IMPL_SIZE];
 };
 } // namespace breeze::communicator

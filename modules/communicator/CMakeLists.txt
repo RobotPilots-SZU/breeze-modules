@@ -16,6 +16,7 @@ target_link_libraries(breeze_module_communicator
         robotpilots::algorithm
 		ramenx
 		breeze::module::models
+		rp_proto
 )
 
 zephyr_library_sources(${SOURCES})

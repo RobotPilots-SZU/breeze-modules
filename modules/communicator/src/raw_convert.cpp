@@ -30,8 +30,15 @@ DecodeResult DecoderStep(etl::span<std::uint8_t> buffer, const etl::icircular_bu
 {
 	const auto itSof = etl::find(raw.begin(), raw.end(), SOF);
 
-	// 无数据或数据不足够帧头, 不丢数据, 继续等.
-	if (itSof == raw.end() || static_cast<std::size_t>(raw.end() - itSof) < HEADER_SIZE)
+	if (itSof == raw.end())
+	{
+		return {.Step = raw.size()};
+	}
+	if (itSof != raw.begin() && static_cast<std::size_t>(raw.end() - itSof) < HEADER_SIZE)
+	{
+		return {.Step = static_cast<std::size_t>(itSof - raw.begin())};
+	}
+	if (static_cast<std::size_t>(raw.end() - itSof) < HEADER_SIZE)
 	{
 		return {};
 	}
@@ -44,6 +51,10 @@ DecodeResult DecoderStep(etl::span<std::uint8_t> buffer, const etl::icircular_bu
 		| static_cast<uint32_t>(itHeader[2]);
 	// clang-format on
 	const auto itData = itSof + sizeof(SOF) + LEN_BYTES;
+	if (len > buffer.size())
+	{
+		return {.Step = static_cast<std::size_t>(itData - raw.begin()), .Data = {}};
+	}
 
 	// 再次查长度
 	if (const auto avail = static_cast<std::size_t>(raw.end() - itData); avail < len)
@@ -53,7 +64,7 @@ DecodeResult DecoderStep(etl::span<std::uint8_t> buffer, const etl::icircular_bu
 
 	// 没毛病, 直接让下游同步解. TODO: 目前用拷贝大法, 后续可以考虑用nanopb神秘特性减少拷贝, 别急.
 	etl::copy(itData, itData + len, buffer.begin());
-	return {.Step = static_cast<std::size_t>(itData + len - raw.begin()), .Data = buffer.subspan(HEADER_SIZE, len)};
+	return {.Step = static_cast<std::size_t>(itData + len - raw.begin()), .Data = buffer.subspan(0, len)};
 }
 
 } // namespace
@@ -68,17 +79,21 @@ void RawDecoder::Accept(std::span<const std::uint8_t> data)
 	}
 
 	Raw.push(data.begin(), data.end());
-	auto itNext = Raw.begin();
-	while (itNext != Raw.end())
+	while (!Raw.empty())
 	{
 		auto result = DecoderStep(Buffer, Raw);
 		if (!result.Data.empty())
 		{
 			Out(result.Data);
-			itNext += result.Step;
+			Raw.pop(result.Step);
 		}
 		else
 		{
+			if (result.Step != 0)
+			{
+				Raw.pop(result.Step);
+				continue;
+			}
 			break;
 		}
 	}

@@ -82,5 +82,10 @@ public:
 		auto idx = INDEXER[static_cast<std::size_t>(id)];
 		return idx != INVALID ? &_values[idx] : nullptr;
 	}
+	const TValue* At(TEnum id) const
+	{
+		auto idx = INDEXER[static_cast<std::size_t>(id)];
+		return idx != INVALID ? &_values[idx] : nullptr;
+	}
 };
 } // namespace breeze::models
