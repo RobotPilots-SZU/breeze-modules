@@ -30,7 +30,7 @@ namespace breeze::models
  * @endcode
  *
  */
-template <typename TEnum, typename TValue, auto TIds, auto TAllValues>
+template <typename TEnum, typename TValue, auto TIds, auto TAllValues = TIds>
 class IndexedEnumArray
 {
 	static constexpr std::size_t N = TAllValues.size();
@@ -78,6 +78,11 @@ public:
 	 * @return TValue* 指向的内存. 不存在则返回nullptr
 	 */
 	TValue* At(TEnum id)
+	{
+		auto idx = INDEXER[static_cast<std::size_t>(id)];
+		return idx != INVALID ? &_values[idx] : nullptr;
+	}
+	const TValue* At(TEnum id) const
 	{
 		auto idx = INDEXER[static_cast<std::size_t>(id)];
 		return idx != INVALID ? &_values[idx] : nullptr;

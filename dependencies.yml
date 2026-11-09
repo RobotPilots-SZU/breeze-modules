@@ -39,3 +39,9 @@ manifest:
           - fatfs
           - littlefs
           - picolibc
+    - name: nanopb
+      url: https://github.com/nanopb/nanopb
+      revision: 0.4.9.2
+    - name: rp-proto
+      path: rp-proto
+      revision: main
