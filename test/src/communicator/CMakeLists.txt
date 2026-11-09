@@ -7,6 +7,7 @@ target_link_libraries(communicator_test
 		breeze::module::models
 		breeze_module_communicator
 		robotpilots::algorithm
+		rp_proto
 )
 
 target_link_libraries(app PRIVATE

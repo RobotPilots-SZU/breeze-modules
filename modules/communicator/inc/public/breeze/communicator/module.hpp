@@ -52,9 +52,9 @@ public:
 	Output Out;
 
 	/// @brief 原始数据源. 注意需要在线程上下文.
-	ramen::Pushable<std::span<std::uint8_t>> InRaw;
+	ramen::Pushable<std::span<const std::uint8_t>> InRaw;
 	/// @brief 原始(编码后)数据输出. 注意不要阻塞.
-	ramen::Pusher<std::span<std::uint8_t>> OutRaw;
+	ramen::Pusher<std::span<const std::uint8_t>> OutRaw;
 
 	Module();
 	~Module();
@@ -68,7 +68,7 @@ public:
 private:
 	static constexpr auto IMPL_SIZE = 16384;
 	struct Impl;
-	static ramen::Pushable<std::span<std::uint8_t>> MakeRawInput(Module& owner);
+	static ramen::Pushable<std::span<const std::uint8_t>> MakeRawInput(Module& owner);
 	alignas(std::max_align_t) std::byte _storage[IMPL_SIZE];
 };
 } // namespace breeze::communicator

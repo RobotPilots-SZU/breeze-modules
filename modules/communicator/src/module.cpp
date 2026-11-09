@@ -88,9 +88,9 @@ Module::Module()
 	new (_storage) Impl{*this};
 }
 
-ramen::Pushable<std::span<std::uint8_t>> Module::MakeRawInput(Module& owner)
+ramen::Pushable<std::span<const std::uint8_t>> Module::MakeRawInput(Module& owner)
 {
-	return ramen::Pushable<std::span<std::uint8_t>>{[&owner](const auto& data) {
+	return {[&owner](const auto& data) {
 		auto* impl = reinterpret_cast<Impl*>(owner._storage);
 		impl->RawDecoder.In(std::span<const std::uint8_t>{data.data(), data.size()});
 	}};
