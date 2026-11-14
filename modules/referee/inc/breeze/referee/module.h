@@ -14,9 +14,11 @@
 #include <breeze/messages/game.hpp>
 #include <breeze/messages/system.hpp>
 #include <breeze/models/id.hpp>
+#include <cstddef>
 #include <etl/span.h>
 #include <ramen.hpp>
 #include <ramenx/logic.hpp>
+#include <zephyr/autoconf.h>
 
 namespace breeze::referee
 {
@@ -40,7 +42,6 @@ struct Outputs
 	ramen::Pullable<models::messages::RobotAmmos> AllyAmmos;
 	ramen::Pullable<models::messages::RobotBuffs> AllyBuffs;
 	ramen::Pullable<models::messages::RobotPoses> AllyPoses;
-
 };
 
 /**
@@ -55,16 +56,20 @@ struct Module
 	ramen::Pushable<etl::span<const uint8_t>> InReferee;
 	ramen::Pushable<etl::span<const uint8_t>> InVT;
 
-	static Module& Instance();
+	Module();
+	~Module();
 	Module(const Module&) = delete;
 	Module(Module&&) = delete;
 	Module& operator=(const Module&) = delete;
 	Module& operator=(Module&&) = delete;
 
 private:
-	Module();
+	struct Impl;
+	static constexpr std::size_t IMPL_SIZE =
+	    512 + 2 * (CONFIG_BREEZE_MODULE_REFEREE_RING_BUF_SIZE + CONFIG_BREEZE_MODULE_REFEREE_LINEAR_BUF_SIZE);
+	alignas(std::max_align_t) std::byte _storage[IMPL_SIZE];
+	Impl* _impl;
+	Outputs MakeOutputs();
 };
-
-extern Module& module;
 
 } // namespace breeze::referee
