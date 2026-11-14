@@ -21,11 +21,11 @@ namespace breeze::common
 
 /**
  * @brief 控制算法委托
- * @tparam TFeedback 反馈输入
  * @tparam TTarget 控制目标
+ * @tparam TFeedback 反馈输入
  * @tparam TOutput 控制输出
  */
-template <typename TFeedback, typename TTarget, typename TOutput>
+template <typename TTarget, typename TFeedback, typename TOutput>
 using ControlDelegate =
     etl::delegate<TOutput(const TTarget& target, const TFeedback& feedback, models::MilliSeconds<std::int32_t> delta)>;
 
@@ -33,15 +33,15 @@ using ControlDelegate =
  * @brief 控制模块的通用抽象
  * @note 无论是控制协调, 还是原子控制组件, 都可以采用这个范式
  *
- * @tparam TFeedback 反馈输入
  * @tparam TTarget 控制目标
+ * @tparam TFeedback 反馈输入
  * @tparam TOutput 控制输出
  */
-template <typename TFeedback, typename TTarget, typename TOutput>
+template <typename TTarget, typename TFeedback, typename TOutput>
 class ControlModuleBase
 {
 public:
-	using ControlImpl = ControlDelegate<TFeedback, TTarget, TOutput>;
+    using ControlImpl = ControlDelegate<TTarget, TFeedback, TOutput>;
 
 	/**
 	 * @brief 目标值触发输入. 控制算法, 输出等等都在该推送线程执行.
@@ -73,14 +73,14 @@ private:
 
 #pragma region Implement
 
-template <typename TFeedback, typename TTarget, typename TOutput>
-void ControlModuleBase<TFeedback, TTarget, TOutput>::Start()
+template <typename TTarget, typename TFeedback, typename TOutput>
+void ControlModuleBase<TTarget, TFeedback, TOutput>::Start()
 {
 	_lastTime = k_uptime_get();
 }
 
-template <typename TFeedback, typename TTarget, typename TOutput>
-ControlModuleBase<TFeedback, TTarget, TOutput>::ControlModuleBase(ControlImpl control)
+template <typename TTarget, typename TFeedback, typename TOutput>
+ControlModuleBase<TTarget, TFeedback, TOutput>::ControlModuleBase(ControlImpl control)
     : InTarget([this](const TTarget& target) {
 	      const auto& report = *InFeedback;
 

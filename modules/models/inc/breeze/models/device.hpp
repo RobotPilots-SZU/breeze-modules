@@ -97,6 +97,11 @@ struct MotorReport
 	 */
 	EncoderReport Encoder;
 	/**
+	 * @brief 角度值
+	 *
+	 */
+	Degree<float> Angle;
+	/**
 	 * @brief 转速
 	 *
 	 */

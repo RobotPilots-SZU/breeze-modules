@@ -48,7 +48,7 @@ struct PitchOutput
 	models::MotorControl PitchMotor;
 };
 
-using PitchModule = common::ControlModuleBase<PitchFeedback, PitchTarget, PitchOutput>;
+using PitchModule = common::ControlModuleBase<PitchTarget, PitchFeedback, PitchOutput>;
 
 #pragma endregion
 
@@ -85,7 +85,7 @@ struct SingleYawOutput
  * @note (Yaw目标, 反馈) -> Yaw 电机控制
  *
  */
-using SingleYawModule = common::ControlModuleBase<SingleYawFeedback, SingleYawTarget, SingleYawOutput>;
+using SingleYawModule = common::ControlModuleBase<SingleYawTarget, SingleYawFeedback, SingleYawOutput>;
 
 #pragma endregion
 
@@ -130,7 +130,7 @@ struct DoubleYawOutput
  * @note (Yaw目标, 反馈) -> 两个Yaw 电机控制
  *
  */
-using DoubleYawModule = common::ControlModuleBase<DoubleYawFeedback, DoubleYawTarget, DoubleYawOutput>;
+using DoubleYawModule = common::ControlModuleBase<DoubleYawTarget, DoubleYawFeedback, DoubleYawOutput>;
 #pragma endregion
 
 } // namespace breeze::gimbal
