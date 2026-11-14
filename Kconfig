@@ -16,7 +16,7 @@ rsource "modules/chassis/Kconfig"
 rsource "modules/referee/Kconfig"
 rsource "modules/communicator/Kconfig"
 rsource "modules/msgpipe/Kconfig"
-# rsource "modules/gimbal/Kconfig"
+rsource "modules/gimbal/Kconfig"
 # rsource "modules/shooter/Kconfig"
 
 endif # BREEZE_MODULES

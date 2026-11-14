@@ -16,13 +16,6 @@
 namespace breeze::models
 {
 
-template <typename T>
-struct ValueType
-{
-	T Value;
-	bool operator==(const ValueType&) const = default;
-};
-
 /**
  * @brief 整数百分比
  *
@@ -36,8 +29,21 @@ struct Percentage
  * @brief 时间, 单位秒
  */
 template <typename T>
-struct Seconds : ValueType<T>
-{};
+struct Seconds
+{
+	T Value;
+	bool operator==(const Seconds&) const = default;
+};
+
+/**
+ * @brief 时间, 单位毫秒
+ */
+template <typename T = std::int32_t>
+struct MilliSeconds
+{
+	T Value;
+	bool operator==(const MilliSeconds&) const = default;
+};
 
 /**
  * @brief 能量，单位焦耳
@@ -127,6 +133,7 @@ struct Vec3
 struct TimeStamp
 {
 	std::uint64_t Value;
+	bool operator==(const TimeStamp&) const = default;
 };
 
 /**
@@ -152,8 +159,11 @@ struct Posture
  * @tparam T
  */
 template <typename T>
-struct Rpm : ValueType<T>
-{};
+struct Rpm
+{
+	T Value;
+	bool operator==(const Rpm&) const = default;
+};
 
 /**
  * @brief 温度单位 (摄氏度)
@@ -162,7 +172,10 @@ struct Rpm : ValueType<T>
  */
 template <typename T>
 struct Celsius
-{};
+{
+	T Value;
+	bool operator==(const Celsius&) const = default;
+};
 
 template <typename T>
 using Temperature = Celsius<T>;
@@ -173,8 +186,11 @@ using Temperature = Celsius<T>;
  * @tparam T
  */
 template <typename T>
-struct NewtonMeter : ValueType<T>
-{};
+struct NewtonMeter
+{
+	T Value;
+	bool operator==(const NewtonMeter&) const = default;
+};
 
 // TODO: 常量转换函数
 
