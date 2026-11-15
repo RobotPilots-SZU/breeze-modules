@@ -19,6 +19,7 @@ target_link_libraries(breeze_module_gimbal
 		ramenx
 		breeze::module::models
 		breeze::module::common
+		robotpilots::algorithm
 )
 
 add_library(breeze::module::gimbal ALIAS breeze_module_gimbal)

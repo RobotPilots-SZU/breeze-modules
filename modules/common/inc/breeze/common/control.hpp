@@ -41,7 +41,7 @@ template <typename TTarget, typename TFeedback, typename TOutput>
 class ControlModuleBase
 {
 public:
-    using ControlImpl = ControlDelegate<TTarget, TFeedback, TOutput>;
+	using ControlImpl = ControlDelegate<TTarget, TFeedback, TOutput>;
 
 	/**
 	 * @brief 目标值触发输入. 控制算法, 输出等等都在该推送线程执行.
@@ -60,21 +60,31 @@ public:
 	ramen::Pusher<TOutput> Out;
 	ControlModuleBase(ControlImpl control);
 	/**
-	 * @brief 显式启动方法
+	 * @brief 启动
 	 *
 	 */
 	void Start();
+	/**
+	 * @brief 重置
+	 *
+	 */
+	void Reset();
 
 private:
-	static constexpr std::int64_t INVALID_TIME = -1;
 	ControlImpl _control;
-	std::int64_t _lastTime = INVALID_TIME;
+	std::int64_t _lastTime = 0;
 };
 
 #pragma region Implement
 
 template <typename TTarget, typename TFeedback, typename TOutput>
 void ControlModuleBase<TTarget, TFeedback, TOutput>::Start()
+{
+	_lastTime = k_uptime_get();
+}
+
+template <typename TTarget, typename TFeedback, typename TOutput>
+void ControlModuleBase<TTarget, TFeedback, TOutput>::Reset()
 {
 	_lastTime = k_uptime_get();
 }
