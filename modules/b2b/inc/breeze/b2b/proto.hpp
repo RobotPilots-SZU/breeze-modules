@@ -63,7 +63,7 @@ public:
 	etl::span<const std::byte> Encode(const TMsg& msg, etl::span<std::byte> buffer)
 	{
 		constexpr std::uint8_t ID = TMsg::ID;
-		assert(buffer.size() > sizeof(TMsg) + sizeof(ID));
+		assert(buffer.size() >= sizeof(TMsg) + sizeof(ID));
 
 		std::memcpy(buffer.data(), &ID, sizeof(ID));
 		std::memcpy(buffer.data() + sizeof(ID), &msg, sizeof(TMsg));
@@ -79,7 +79,7 @@ class Decoder
 public:
 	using Callbacks = CallbackTable<TMsgs...>;
 
-	template <typename TAvailable>
+	template <typename TAvailable = AvailableMessages<TMsgs...>>
 	    requires(details::HandledMessagesAreAvailable<TAvailable, TMsgs...>)
 	explicit Decoder(Callbacks callbacks)
 	    : _callbacks(callbacks)
@@ -110,15 +110,17 @@ private:
 		// 长度不足直接停止解码
 		if (transfer.size_bytes() < sizeof(ID))
 		{
-			return true;
+			return false;
 		}
 		if (auto id = *reinterpret_cast<const decltype(ID)*>(transfer.data()); id == ID)
 		{
 			if (transfer.size_bytes() != sizeof(ID) + sizeof(TMsg))
 			{
-				const auto& msg = *reinterpret_cast<const TMsg*>(transfer.data() + sizeof(ID));
-				std::get<Index>(_callbacks)(msg);
+				return false;
 			}
+			TMsg msg{};
+			std::memcpy(&msg, transfer.data() + sizeof(ID), sizeof(TMsg));
+			std::get<Index>(_callbacks)(msg);
 			return true;
 		}
 		return false;

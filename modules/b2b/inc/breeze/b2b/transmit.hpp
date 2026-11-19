@@ -62,7 +62,7 @@ public:
 
 private:
 	struct Impl;
-	static constexpr std::size_t IMPL_SIZE = 872;
+	static constexpr std::size_t IMPL_SIZE = 1024;
 	alignas(std::max_align_t) std::byte _storage[IMPL_SIZE];
 	Impl* P();
 };
