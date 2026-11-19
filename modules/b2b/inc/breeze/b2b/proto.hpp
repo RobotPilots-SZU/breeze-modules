@@ -125,53 +125,53 @@ private:
 		}
 		return false;
 	};
-
-	/**
-	 * @brief 构造 `Decoder`. 充分利用编译器推断.
-	 * @code {.cpp}
-	 *
-	    #pragma pack(push, 1)
-	    struct MsgA
-	    {
-	        static constexpr std::uint8_t ID = 0x10;
-	        float MotorTorque;
-	    };
-	    struct MsgB
-	    {
-	        static constexpr std::uint8_t ID = 0x11;
-	        float Yaw;
-	    };
-
-	    struct MsgC
-	    {
-	        static constexpr std::uint8_t ID = 0x12;
-	        float Pitch;
-	    };
-
-	    #pragma pack(pop)
-
-	    using Avail = breeze::b2b::AvailableMessages<MsgA, MsgB>;
-
-	    breeze::b2b::Encoder<Avail> encoder;
-	    auto cb_a = [](const MsgA&) {};
-	    auto cb_b = [](const MsgB&) {};
-	    auto decoder = breeze::b2b::MkDecoder<Avail>(std::tuple{
-	        etl::make_delegate(cb_a),
-	        etl::make_delegate(cb_b),
-	    });
-
-	 * @endcode
-	 *
-	 *
-	 * @tparam TAvailable
-	 * @tparam THandledMsgs
-	 */
-	template <typename TAvailable, details::Message... THandledMsgs>
-	    requires(details::HandledMessagesAreAvailable<TAvailable, THandledMsgs...>)
-	Decoder<THandledMsgs...> MkDecoder(CallbackTable<THandledMsgs...> callbacks)
-	{
-		return {callbacks};
-	}
 };
+
+/**
+ * @brief 构造 `Decoder`. 充分利用编译器推断.
+ * @code {.cpp}
+ *
+    #pragma pack(push, 1)
+    struct MsgA
+    {
+        static constexpr std::uint8_t ID = 0x10;
+        float MotorTorque;
+    };
+    struct MsgB
+    {
+        static constexpr std::uint8_t ID = 0x11;
+        float Yaw;
+    };
+
+    struct MsgC
+    {
+        static constexpr std::uint8_t ID = 0x12;
+        float Pitch;
+    };
+
+    #pragma pack(pop)
+
+    using Avail = breeze::b2b::AvailableMessages<MsgA, MsgB>;
+
+    breeze::b2b::Encoder<Avail> encoder;
+    auto cb_a = [](const MsgA&) {};
+    auto cb_b = [](const MsgB&) {};
+    auto decoder = breeze::b2b::MkDecoder<Avail>(std::tuple{
+        etl::make_delegate(cb_a),
+        etl::make_delegate(cb_b),
+    });
+
+ * @endcode
+ *
+ *
+ * @tparam TAvailable
+ * @tparam THandledMsgs
+ */
+template <typename TAvailable, details::Message... THandledMsgs>
+    requires(details::HandledMessagesAreAvailable<TAvailable, THandledMsgs...>)
+Decoder<THandledMsgs...> MkDecoder(CallbackTable<THandledMsgs...> callbacks)
+{
+	return {callbacks};
+}
 
 } // namespace breeze::b2b
