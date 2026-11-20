@@ -13,17 +13,17 @@
 #pragma once
 
 #include "_proto_details.hpp"
+#include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
-#include <etl/delegate.h>
-#include <etl/ranges.h>
 #include <etl/span.h>
-#include <utility>
 namespace breeze::b2b
 {
 
 /**
  * @brief 表示定长协议支持的所有消息. 纯编译期标记类型.
+ * @note 推荐结合 using 使用, 为消息集合起一个名称, 方便Encoder与Decoder共用.
  *
  * @tparam TMsgs 所有消息类型
  */
@@ -37,12 +37,6 @@ struct AvailableMessages
 		return details::MessageOf<TMsg, TMsgs...>;
 	}
 };
-
-template <details::Message TMsg>
-using Callback = etl::delegate<void(const TMsg&)>;
-
-template <details::ValidMessages... TMsgs>
-using CallbackTable = std::tuple<Callback<TMsgs>...>;
 
 template <typename TAvailable>
 class Encoder;
@@ -72,106 +66,52 @@ public:
 	}
 };
 
-template <details::Message... TMsgs>
-    requires(sizeof...(TMsgs) > 0 && details::UniqueIds<TMsgs...>)
-class Decoder
+template <typename TAvailable>
+class Decoder;
+
+template <typename... TMsgs>
+class Decoder<AvailableMessages<TMsgs...>>
 {
 public:
-	using Callbacks = CallbackTable<TMsgs...>;
-
-	template <typename TAvailable = AvailableMessages<TMsgs...>>
-	    requires(details::HandledMessagesAreAvailable<TAvailable, TMsgs...>)
-	explicit Decoder(Callbacks callbacks)
-	    : _callbacks(callbacks)
-	{}
-
 	/**
-	 * @brief 根据处理表遍历查找并处理.
-	 * @note 代码相当于手写一个大switch, 只是自动化了
+	 * @brief 解码一帧并同步调用匹配的处理函数.
+	 * @note Handle handle如果有函数 `void Handle(const TMsg&)`, 则认为成功处理了消息 `TMsg`. 目前按顺序根据id查找(相当于手写switch)
 	 *
-	 * @param transfer 传输层数据
-	 * @return bool 该消息是否支持被处理
+	 * @param data 传输层数据
+	 * @return bool 帧有效且调用了匹配的 Handle 时返回 true
 	 */
-	bool Decode(etl::span<const std::byte> data) { return DecodeImpl(data, std::index_sequence_for<TMsgs...>{}); };
-
-private:
-	Callbacks _callbacks;
-
-	template <std::size_t... Is>
-	bool DecodeImpl(etl::span<const std::byte> transfer, std::index_sequence<Is...>)
+	template <typename THandler>
+	bool Decode(etl::span<const std::byte> data, THandler& handler) const
 	{
-		return (TryDecodeSingle<Is, TMsgs>(transfer) || ...);
-	}
-
-	template <std::size_t Index, typename TMsg>
-	bool TryDecodeSingle(etl::span<const std::byte> transfer)
-	{
-		constexpr std::uint8_t ID = TMsg::ID;
-		// 长度不足直接停止解码
-		if (transfer.size_bytes() < sizeof(ID))
+		if (data.empty())
 		{
 			return false;
 		}
-		if (auto id = *reinterpret_cast<const decltype(ID)*>(transfer.data()); id == ID)
+		const auto id = std::to_integer<std::uint8_t>(data[0]);
+		return (TryDecode<TMsgs>(id, data, handler) || ...);
+	}
+
+private:
+	template <typename TMsg, typename THandler>
+	static bool TryDecode(std::uint8_t id, etl::span<const std::byte> data, THandler& handler)
+	{
+		if constexpr (!details::HasExactHandle<THandler, TMsg>)
 		{
-			if (transfer.size_bytes() != sizeof(ID) + sizeof(TMsg))
+			return false;
+		}
+		else
+		{
+			if (id != TMsg::ID || data.size_bytes() != sizeof(id) + sizeof(TMsg))
 			{
 				return false;
 			}
 			TMsg msg{};
-			std::memcpy(&msg, transfer.data() + sizeof(ID), sizeof(TMsg));
-			std::get<Index>(_callbacks)(msg);
+			std::memcpy(&msg, data.data() + sizeof(id), sizeof(TMsg));
+			constexpr auto handle = static_cast<details::HandleMember<THandler, TMsg>>(&THandler::Handle);
+			(handler.*handle)(msg);
 			return true;
 		}
-		return false;
-	};
+	}
 };
-
-/**
- * @brief 构造 `Decoder`. 充分利用编译器推断.
- * @code {.cpp}
- *
-    #pragma pack(push, 1)
-    struct MsgA
-    {
-        static constexpr std::uint8_t ID = 0x10;
-        float MotorTorque;
-    };
-    struct MsgB
-    {
-        static constexpr std::uint8_t ID = 0x11;
-        float Yaw;
-    };
-
-    struct MsgC
-    {
-        static constexpr std::uint8_t ID = 0x12;
-        float Pitch;
-    };
-
-    #pragma pack(pop)
-
-    using Avail = breeze::b2b::AvailableMessages<MsgA, MsgB>;
-
-    breeze::b2b::Encoder<Avail> encoder;
-    auto cb_a = [](const MsgA&) {};
-    auto cb_b = [](const MsgB&) {};
-    auto decoder = breeze::b2b::MkDecoder<Avail>(std::tuple{
-        etl::make_delegate(cb_a),
-        etl::make_delegate(cb_b),
-    });
-
- * @endcode
- *
- *
- * @tparam TAvailable
- * @tparam THandledMsgs
- */
-template <typename TAvailable, details::Message... THandledMsgs>
-    requires(details::HandledMessagesAreAvailable<TAvailable, THandledMsgs...>)
-Decoder<THandledMsgs...> MkDecoder(CallbackTable<THandledMsgs...> callbacks)
-{
-	return {callbacks};
-}
 
 } // namespace breeze::b2b

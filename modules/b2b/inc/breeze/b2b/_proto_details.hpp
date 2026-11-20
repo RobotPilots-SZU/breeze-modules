@@ -1,8 +1,8 @@
 #pragma once
 
 #include <concepts>
+#include <cstddef>
 #include <cstdint>
-#include <etl/delegate.h>
 
 namespace breeze::b2b::details
 {
@@ -37,7 +37,13 @@ template <typename T, typename... Ts>
 concept MessageOf = (std::same_as<T, Ts> || ...);
 template <typename... TMsgs>
 concept ValidMessages = (Message<TMsgs> && ...) && UniqueIds<TMsgs...>;
-template <typename TAvailable, typename... THandledMsgs>
-concept HandledMessagesAreAvailable = (TAvailable::template Contains<THandledMsgs>() && ...);
+
+template <typename THandler, typename TMsg>
+using HandleMember = void (THandler::*)(const TMsg&);
+
+template <typename THandler, typename TMsg>
+concept HasExactHandle = requires {
+	static_cast<HandleMember<THandler, TMsg>>(&THandler::Handle);
+};
 
 } // namespace breeze::b2b::details
