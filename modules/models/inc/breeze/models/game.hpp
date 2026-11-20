@@ -135,6 +135,42 @@ struct Buffs
 	Percentage Attack;   ///< 攻击增益/减益百分比. 正为增益, 负为减益.
 };
 
+enum class MajorFocusType : std::uint8_t
+{
+	Unspecified,
+	Melee,
+	LongRange,
+};
+
+constexpr auto MAJOR_FOCUS_TYPE_VALUES = [] {
+	using enum MajorFocusType;
+	return std::array{Unspecified, Melee, LongRange};
+}();
+
+enum class ChassisFocusType : std::uint8_t
+{
+	Unspecified,
+	Power,
+	Health,
+};
+
+constexpr auto CHASSIS_FOCUS_TYPE_VALUES = [] {
+	using enum ChassisFocusType;
+	return std::array{Unspecified, Power, Health};
+}();
+
+enum class LaunchingMechanismFocusType : std::uint8_t
+{
+	Unspecified,
+	Burst,
+	Cooling,
+};
+
+constexpr auto LAUNCHING_MECHANISM_FOCUS_TYPE_VALUES = [] {
+	using enum LaunchingMechanismFocusType;
+	return std::array{Unspecified, Burst, Cooling};
+}();
+
 /**
  * @brief 伤害源(血量变化类型)
  *
@@ -352,6 +388,35 @@ constexpr auto BUFF_ROBOT_IDS = ROBOT_SHORT_ID_VALUES;
  */
 struct RobotBuffs : IndexedEnumArray<RobotShortId, Buffs, BUFF_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
 {};
+
+/** @brief 机器人整车性能体系集合. */
+struct RobotMajorFocuses : IndexedEnumArray<RobotShortId, MajorFocusType, ROBOT_SHORT_ID_VALUES>
+{};
+
+/** @brief 机器人底盘性能体系集合. */
+struct RobotChassisFocuses : IndexedEnumArray<RobotShortId, ChassisFocusType, ROBOT_SHORT_ID_VALUES>
+{};
+
+/** @brief 机器人发射机构性能体系集合. */
+struct RobotLaunchingMechanismFocuses
+    : IndexedEnumArray<RobotShortId, LaunchingMechanismFocusType, ROBOT_SHORT_ID_VALUES>
+{};
+
+/**
+ * @brief 单侧机器人的比赛数据, 按领域组件分别索引机器人.
+ */
+struct RobotInfos
+{
+	RobotHealths Healths;
+	RobotAmmos Ammos;
+	RobotHeats Heats;
+	RobotHeats CoolingRates;
+	RobotBuffs Buffs;
+	RobotMajorFocuses MajorFocuses;
+	RobotChassisFocuses ChassisFocuses;
+	RobotLaunchingMechanismFocuses LaunchingMechanismFocuses;
+};
+
 /**
  * @brief 机器人脱战状态集合 (true表示脱战)
  *

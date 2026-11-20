@@ -19,6 +19,21 @@ namespace breeze::models
 {
 
 /**
+ * @brief 运动模式类别
+ *
+ */
+enum class MotionMode : std::uint8_t
+{
+	None,
+	Spin,      ///< 小陀螺
+	HyperSpin, ///< 大陀螺
+	StepUp,    ///< 上台阶
+	StepDown,  ///< 下台阶
+	Launch,    ///< 飞坡
+	Jump       ///< 跳跃
+};
+
+/**
  * @brief 机器人控制命令的Tag类型, 无内容.
  *
  */
