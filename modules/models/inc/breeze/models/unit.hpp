@@ -129,6 +129,53 @@ struct TimeStamp
 	std::uint64_t Value;
 };
 
+/**
+ * @brief 姿态
+ *
+ */
+struct Posture
+{
+	/**
+	 * @brief 三个轴方向的角度. 单位: 度
+	 * @par 参数极性的定义
+	 *
+	 * Pitch: 抬头为正, 水平线是0.
+	 * Roll: 视线平面顺时针(头往右歪)为正, 不歪是0.
+	 * Yaw: 头往左扭为正. 正前方为0.
+	 */
+	Degree<float> Pitch, Roll, Yaw;
+};
+
+/**
+ * @brief 转速 (转每分钟)
+ *
+ * @tparam T
+ */
+template <typename T>
+struct Rpm : ValueType<T>
+{};
+
+/**
+ * @brief 温度单位 (摄氏度)
+ *
+ * @tparam T
+ */
+template <typename T>
+struct Celsius
+{};
+
+template <typename T>
+using Temperature = Celsius<T>;
+
+/**
+ * @brief 扭矩单位 (牛米)
+ *
+ * @tparam T
+ */
+template <typename T>
+struct NewtonMeter : ValueType<T>
+{};
+
 // TODO: 常量转换函数
 
 } // namespace breeze::models
