@@ -13,10 +13,10 @@ end
 
 subgraph B2B[板通表现层解析]
   B2B_ID[ID]
-  B2B_PAYLOAD[结构体强转]
+  B2B_CAst_PAYLOAD[结构体强转(B2B Cast Proto)]
 end
 
-subgraph Com["Communicator (RP-PROTO) 解析"]
+subgraph Com["Communicator (RP Proto) 解析"]
 
 end
 
@@ -27,20 +27,7 @@ TP_PAYLOAD --> B2B & Com
 
 设计两层, 一层是板通协议基础设施, 一层是具体协议.
 
-协议基础设施提供一个超大模板类, 把各种具体协议作为trait放进去.
+板通协议基础设施有两层:
 
-```c++
-
-template<typename ...Msg>
-class Proto;
-```
-
-然后直接提供 `Encode` / `Decode` 方法. Id细节会自动根据 `...Msg` 的顺序生成.
-
-```c++
-template<typename TMsg>
-void Encode(const TMsg msg, std::span<std::byte> buffer);
-
-template<typename TMsg>
-void Decode(const TMsg msg, std::span<std::byte> buffer);
-```
+- 传输层: 采用CAN的 `ISO-TP` 进行传输.
+- 表现层: 提供 `B2B Cast Proto`协议, 将结构体与静态ID强转为字节流来传输. 兼容其他表现层, 比如 `RP Proto`.

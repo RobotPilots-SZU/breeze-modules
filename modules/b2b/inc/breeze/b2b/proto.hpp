@@ -1,7 +1,7 @@
 /**
  * @file proto.hpp
  * @author vix_hentx (w1084349470@outlook.com)
- * @brief 板间定长通信协议基本框架
+ * @brief 用于板间通信的定长结构体通信协议. 协议名称为 B2B Cast Proto.
  * @note
  * @version 0.1
  * @date 2026-11-16
@@ -107,8 +107,8 @@ private:
 			}
 			TMsg msg{};
 			std::memcpy(&msg, data.data() + sizeof(id), sizeof(TMsg));
-			constexpr auto handle = static_cast<details::HandleMember<THandler, TMsg>>(&THandler::Handle);
-			(handler.*handle)(msg);
+			constexpr auto HANDLE = static_cast<details::HandleMember<THandler, TMsg>>(&THandler::Handle);
+			(handler.*HANDLE)(msg);
 			return true;
 		}
 	}
