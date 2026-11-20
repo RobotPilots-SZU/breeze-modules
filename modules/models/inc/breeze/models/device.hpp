@@ -29,12 +29,12 @@ struct ImuAngularReport
 	 * @brief 姿态的角度
 	 *
 	 */
-	Pose Angle;
+	Degree<float> Yaw, Roll, Pitch;
 	/**
 	 * @brief 姿态的变化速率(角速度)
 	 *
 	 */
-	Pose Rate;
+	Degree<float> YawRate, RollRate, PitchRate;
 };
 
 /**
@@ -97,10 +97,20 @@ struct MotorReport
 	 */
 	EncoderReport Encoder;
 	/**
+	 * @brief 角度值
+	 *
+	 */
+	Degree<float> Angle;
+	/**
 	 * @brief 转速
 	 *
 	 */
 	Rpm<float> Speed;
+	/**
+	 * @brief 温度
+	 *
+	 */
+	Celsius<int16_t> Temperature;
 };
 
 /**
