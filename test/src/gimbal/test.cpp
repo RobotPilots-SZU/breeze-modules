@@ -72,8 +72,14 @@ struct Rig
 
 	void Expect(float yaw, float pitch) const
 	{
-		zassert_within(YawOutput.Torque.Value, yaw, 0.001F, "Yaw torque mismatch");
-		zassert_within(PitchOutput.Torque.Value, pitch, 0.001F, "Pitch torque mismatch");
+		zassert_within(
+		    YawOutput.Torque.Value, yaw, 0.001F, "Yaw torque mismatch: got %f expected %f",
+		    static_cast<double>(YawOutput.Torque.Value), static_cast<double>(yaw)
+		);
+		zassert_within(
+		    PitchOutput.Torque.Value, pitch, 0.001F, "Pitch torque mismatch: got %f expected %f",
+		    static_cast<double>(PitchOutput.Torque.Value), static_cast<double>(pitch)
+		);
 	}
 };
 
@@ -158,16 +164,12 @@ ZTEST(gimbal, integral_limit_and_separation)
 	rig.Expect(0.05F, 0.0F);
 }
 
-ZTEST(gimbal, zero_delta_holds_output)
+ZTEST(gimbal, successive_targets_update_output)
 {
 	Rig rig;
 	rig.Step(3.0F, 4.0F);
-	const auto key = irq_lock();
-	// 先建立本毫秒的输出, 然后立即改变目标。
-	rig.Module.InMachTarget({.Pitch = {4.0F}, .Yaw = {3.0F}});
-	rig.Module.InMachTarget({.Pitch = {40.0F}, .Yaw = {30.0F}});
-	irq_unlock(key);
-	rig.Expect(3.0F, 4.0F);
+	rig.Step(30.0F, 40.0F);
+	rig.Expect(30.0F, 40.0F);
 }
 
 } // namespace

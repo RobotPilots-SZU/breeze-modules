@@ -26,7 +26,10 @@ constexpr Pid<float>::Config MkPidConf(PidParam param)
 	    .IntegralSeparation = param.InteralSeperation
 	};
 }
-constexpr float Limit(float value, float bound) { return etl::clamp(value, -bound, bound); }
+constexpr float Limit(float value, float bound)
+{
+	return bound > 0.0F ? etl::clamp(value, -bound, bound) : value;
+}
 class MotorController
 {
 public:
@@ -77,16 +80,17 @@ namespace breeze::gimbal
 struct PidPoseModule::Impl
 {
 	PidPoseModule& Self;
+	Param Parameters;
 	SingleYawModule Yaw{etl::make_delegate<Impl, &Impl::YawControl>(*this)};
 	PitchModule Pitch{etl::make_delegate<Impl, &Impl::PitchControl>(*this)};
 	GimbalModedMotorControllers YawControllers;
 	GimbalModedMotorControllers PitchControllers;
 
 	models::GimbalControlMode ModeCache = models::GimbalControlMode::None;
-	ramen::PullNary<SingleYawFeedback, models::ImuAngularReport, models::MotorReport> YawReporter =
-	    [](const auto& imu, const auto& motor) -> SingleYawFeedback { return {.HeadImu{imu.Yaw}, .YawMotor{motor}}; };
-	ramen::PullNary<PitchFeedback, models::ImuAngularReport, models::MotorReport> PitchReporter =
-	    [](const auto& imu, const auto& motor) -> PitchFeedback { return {.HeadImu{imu}, .PitchMotor{motor}}; };
+	SingleYawFeedback YawFeedbackCache{};
+	PitchFeedback PitchFeedbackCache{};
+	ramen::Pullable<SingleYawFeedback> YawReporter{[this](auto& value) { value = YawFeedbackCache; }};
+	ramen::Pullable<PitchFeedback> PitchReporter{[this](auto& value) { value = PitchFeedbackCache; }};
 	ramen::PushUnary<models::MotorControl, SingleYawOutput> YawOutputer =
 	    [](const SingleYawOutput& in) -> models::MotorControl { return {in.YawMotor}; };
 	ramen::PushUnary<models::MotorControl, PitchOutput> PitchOutputer =
@@ -94,11 +98,12 @@ struct PidPoseModule::Impl
 
 	Impl(PidPoseModule& self, const Param& param)
 	    : Self(self),
-	      YawControllers(param.Yaw),
-	      PitchControllers(param.Pitch)
+	      Parameters(param),
+	      YawControllers(Parameters.Yaw),
+	      PitchControllers(Parameters.Pitch)
 	{
-		Yaw.InFeedback >> YawReporter.out;
-		Pitch.InFeedback >> PitchReporter.out;
+		Yaw.InFeedback >> YawReporter;
+		Pitch.InFeedback >> PitchReporter;
 
 		Yaw.Out >> YawOutputer.in;
 		YawOutputer.out >> self.OutYawMotor;
@@ -115,6 +120,22 @@ struct PidPoseModule::Impl
 			YawControllers.Reset();
 			PitchControllers.Reset();
 			ModeCache = mode;
+		}
+		switch (mode)
+		{
+			using enum models::GimbalControlMode;
+		case Gyro: {
+			const auto imu = *Self.InHeadImu;
+			YawFeedbackCache.HeadImu = imu;
+			PitchFeedbackCache.HeadImu = imu;
+			break;
+		}
+		case Mechanical:
+			YawFeedbackCache.YawMotor = *Self.InYawMotor;
+			PitchFeedbackCache.PitchMotor = *Self.InPitchMotor;
+			break;
+		default:
+			break;
 		}
 
 		Pitch.InTarget({posture.Pitch});
@@ -143,7 +164,7 @@ struct PidPoseModule::Impl
 			auto& controller = YawControllers.Mechanical;
 			auto& [currentAngle] = feedback.YawMotor.Angle;
 			auto& [currentSpeed] = feedback.YawMotor.Speed;
-			auto result = controller.Update(targetAngle, currentAngle, currentSpeed * (360.0f / 6.0f), convertedDelta);
+			auto result = controller.Update(targetAngle, currentAngle, currentSpeed * (360.0f / 60.0f), convertedDelta);
 			return {result};
 		}
 		default:
@@ -172,7 +193,7 @@ struct PidPoseModule::Impl
 			auto& controller = PitchControllers.Mechanical;
 			auto& [currentAngle] = feedback.PitchMotor.Angle;
 			auto& [currentSpeed] = feedback.PitchMotor.Speed;
-			auto result = controller.Update(targetAngle, currentAngle, currentSpeed * (360.0f / 6.0f), convertedDelta);
+			auto result = controller.Update(targetAngle, currentAngle, currentSpeed * (360.0f / 60.0f), convertedDelta);
 			return {result};
 		}
 		default:
