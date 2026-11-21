@@ -1,5 +1,5 @@
-#include <breeze/b2b/transmit.hpp>
 #include "zephyr/kernel.h"
+#include <breeze/b2b/transmit.hpp>
 #include <cassert>
 #include <cerrno>
 #include <cstddef>
@@ -16,7 +16,7 @@ namespace breeze::b2b
 
 struct Transmitter::Impl
 {
-	device* Dev;
+	const device* Dev;
 	isotp_send_ctx SendCtx{};
 	isotp_recv_ctx RecvCtx{};
 	isotp_msg_id TxAddr;
@@ -25,10 +25,10 @@ struct Transmitter::Impl
 	etl::array<std::byte, 512> RxBuffer;
 
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-	Impl(device* dev, std::uint16_t selfId, std::uint16_t targetId)
+	Impl(const device* dev, std::uint16_t selfId, std::uint16_t targetId)
 	    : Dev(dev),
-	      TxAddr({.std_id = targetId, .flags = ISOTP_MSG_EXT_ADDR}),
-	      RxAddr({.std_id = selfId, .flags = ISOTP_MSG_EXT_ADDR})
+	      TxAddr({.std_id = targetId & static_cast<std::uint16_t>(0x7FFu), .flags = ISOTP_MSG_EXT_ADDR}),
+	      RxAddr({.std_id = selfId & static_cast<std::uint16_t>(0x7FFu), .flags = ISOTP_MSG_EXT_ADDR})
 	{
 		assert(dev != nullptr);
 		assert(device_is_ready(dev));
@@ -66,7 +66,7 @@ struct Transmitter::Impl
 };
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-Transmitter::Transmitter(device* dev, Config conf)
+Transmitter::Transmitter(const device* dev, Config conf)
     : InSend([this](const etl::span<const std::byte>& info) { P()->Send(info); }),
       OutReceiveWait([this](auto& out) { out = P()->Receive(); })
 {
