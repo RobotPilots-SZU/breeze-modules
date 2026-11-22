@@ -10,7 +10,6 @@
  */
 #pragma once
 
-#include "breeze/models/game.hpp"
 #include "unit.hpp"
 #include <etl/variant.h>
 
