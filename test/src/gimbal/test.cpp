@@ -1,12 +1,12 @@
 // NOLINTBEGIN(readability-magic-numbers)
-#include <breeze/gimbal/preset_pid.hpp>
+#include <breeze/gimbal/yaw1_pitch1_pid.hpp>
 #include <zephyr/ztest.h>
 
 namespace
 {
 using namespace breeze;
 
-gimbal::PidPoseModule::Param MakeParam()
+gimbal::Yaw1Pitch1PidModule::Param MakeParam()
 {
 	const gimbal::MotorParam motor{.Angle = {.Kp = 1.0F}, .Speed = {.Kp = 1.0F}};
 	return {.Yaw = {motor, motor}, .Pitch = {motor, motor}};
@@ -50,9 +50,9 @@ struct Rig
 			Imu.Yaw.Value = 100.0F;
 		}
 	}};
-	gimbal::PidPoseModule Module;
+    gimbal::Yaw1Pitch1PidModule Module;
 
-	explicit Rig(gimbal::PidPoseModule::Param param = MakeParam())
+    explicit Rig(gimbal::Yaw1Pitch1PidModule::Param param = MakeParam())
 	    : Module(param)
 	{
 		Module.InControlMode >> ModeSource;

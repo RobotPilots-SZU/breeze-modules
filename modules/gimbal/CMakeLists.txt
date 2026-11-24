@@ -18,7 +18,6 @@ target_link_libraries(breeze_module_gimbal
     PRIVATE
 		ramenx
 		breeze::module::models
-		breeze::module::common
 		robotpilots::algorithm
 )
 

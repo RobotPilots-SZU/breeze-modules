@@ -1,7 +1,7 @@
 /**
- * @file preset.hpp
+ * @file yaw1_pitch1_pid.hpp
  * @author vix_hentx (w1084349470@outlook.com)
- * @brief 云台模块预设构型pid实现
+ * @brief 云台模块单Yaw单Pitch构型pid实现
  * @version 0.1
  * @date 2026-11-10
  *
@@ -68,14 +68,12 @@ struct ModedMotorParam
 	MotorParam Gyro, Mechanical;
 };
 
-#pragma region PidPoseModule
-
 /**
  * @brief Pid实现的云台姿态单Yaw, 单Pitch控制模块
  * @note 用于英雄机器人的头部控制
  *
  */
-class PidPoseModule
+class Yaw1Pitch1PidModule
 {
 public:
 	/**
@@ -126,8 +124,8 @@ public:
 		 */
 		ModedMotorParam Pitch;
 	};
-	PidPoseModule(Param param);
-	~PidPoseModule();
+	Yaw1Pitch1PidModule(Param param);
+	~Yaw1Pitch1PidModule();
 
 	/** @brief 初始化控制周期计时 */
 	void Start();
@@ -140,7 +138,5 @@ private:
 	alignas(std::max_align_t) std::byte _storage[IMPL_SIZE];
 	Impl& _impl;
 };
-
-#pragma endregion
 
 } // namespace breeze::gimbal
