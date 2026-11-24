@@ -49,7 +49,6 @@ enum class GimbalControlMode : std::uint8_t
 	None,
 	Gyro,       ///< 陀螺仪模式
 	Mechanical, ///< 机械模式
-	Speed       ///< 速度模式
 };
 
 /**

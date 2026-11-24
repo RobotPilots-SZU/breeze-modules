@@ -52,7 +52,7 @@ public:
 	 * @param selfId 当前流控节点的CAN Id
 	 * @param targetId 对方流控节点的CAN Id
 	 */
-	explicit Transmitter(device* dev, Config conf);
+	explicit Transmitter(const device* dev, Config conf);
 	~Transmitter();
 
 	Transmitter(const Transmitter&) = delete;
