@@ -38,7 +38,9 @@ enum class MotionMode : std::uint8_t
  *
  */
 struct ControlCmd
-{};
+{
+	bool operator==(const ControlCmd&) const = default;
+};
 
 /**
  * @brief 云台控制模式
@@ -59,6 +61,7 @@ struct GimbalCmd : ControlCmd
 {
 	GimbalControlMode Mode; ///< 云台控制模式
 	Degree<float> Pitch;    ///< Pitch. 正值表示向上.
+	bool operator==(const GimbalCmd&) const = default;
 };
 
 /**
@@ -81,6 +84,7 @@ struct ChassisCmd : ControlCmd
 {
 	Vec2<std::int16_t> Speed;           ///< (右移速度, 前进速度) 的归一化矢量 max(int16) 表示满速
 	Degree<std::int16_t> RotationSpeed; ///< 旋转速度 的归一化标量. max(int16) 表示顺时针转满速.
+	bool operator==(const ChassisCmd&) const = default;
 };
 
 /**
@@ -113,6 +117,7 @@ struct ShooterCmd : ControlCmd
 {
 	FiringMode Mode;
 	FiringIntent Intent;
+	bool operator==(const ShooterCmd&) const = default;
 };
 
 } // namespace breeze::models

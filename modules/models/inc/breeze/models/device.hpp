@@ -34,6 +34,7 @@ struct ImuAngularReport
 	 *
 	 */
 	Degree<float> YawRate, RollRate, PitchRate;
+	bool operator==(const ImuAngularReport&) const = default;
 };
 
 /**
@@ -50,6 +51,7 @@ struct ImuBodyReport
 	 * Z 默认规定: 向上为正.
 	 */
 	Meter<float> XAcc, YAcc, ZAcc;
+	bool operator==(const ImuBodyReport&) const = default;
 };
 
 #pragma endregion
@@ -65,6 +67,7 @@ struct EncoderReport
 	 *
 	 */
 	std::uint16_t Encode;
+	bool operator==(const EncoderReport&) const = default;
 };
 
 /**
@@ -78,6 +81,7 @@ struct EncoderParam
 	 *
 	 */
 	std::uint16_t Bound;
+	bool operator==(const EncoderParam&) const = default;
 };
 
 #pragma endregion
@@ -110,6 +114,8 @@ struct MotorReport
 	 *
 	 */
 	Celsius<int16_t> Temperature;
+
+	bool operator==(const MotorReport&) const = default;
 };
 
 /**
@@ -123,6 +129,7 @@ struct MotorControl
 	 *
 	 */
 	NewtonMeter<float> Torque;
+	bool operator==(const MotorControl&) const = default;
 };
 
 #pragma endregion

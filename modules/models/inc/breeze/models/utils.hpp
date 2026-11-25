@@ -103,6 +103,9 @@ class IndexedEnumArray
 	static constexpr auto INDEXER = MkIndexer();
 	std::array<TValue, TIds.size()> _values;
 
+public:
+	bool operator==(const IndexedEnumArray&) const = default;
+
 	template <typename TFactory, std::size_t... TIndexes>
 	static consteval bool ValidFactory(std::index_sequence<TIndexes...>)
 	{
@@ -120,7 +123,6 @@ class IndexedEnumArray
 		return {{std::invoke(factory, std::integral_constant<TEnum, TIds[TIndexes]>{})...}};
 	}
 
-public:
 	IndexedEnumArray()
 	    requires std::default_initializable<TValue>
 	= default;

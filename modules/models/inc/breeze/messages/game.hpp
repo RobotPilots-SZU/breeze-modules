@@ -30,6 +30,7 @@ struct GameState
 	GameMode Mode;                 ///< 比赛类型
 	GameStage Stage;               ///< 比赛阶段
 	Seconds<std::uint16_t> Remain; ///< 当前阶段剩余时间
+	bool operator==(const GameState&) const = default;
 };
 
 #pragma endregion
@@ -98,6 +99,7 @@ struct LogisticsInfo
 {
 	EconomyPoint Economy; ///< 金币
 	Level CryptionLevel;  ///< 加密等级(对方干扰波难度等级)
+	bool operator==(const LogisticsInfo&) const = default;
 };
 
 /**
@@ -109,6 +111,7 @@ struct DartInfo
 	Seconds<std::uint8_t> RemainingTime; ///< 飞镖发射剩余时间
 	DartTarget TargetSelected;           ///< 当前选中目标
 	std::uint8_t HitCount;               ///< 击中总次数
+	bool operator==(const DartInfo&) const = default;
 };
 
 /**
@@ -120,6 +123,7 @@ struct LidarInfo
 	std::uint8_t HyperVulnerabilityLeft; ///< 剩余发动双倍易伤的次数
 	bool HyperVulnerabilityEffective;    ///< 双倍易伤生效中 (对方是否被易伤)
 	bool KeyModifiable;                  ///< 是否可以修改密钥
+	bool operator==(const LidarInfo&) const = default;
 };
 
 // TODO: 烧饼相关Model在后续有需求时再写. 大概率是直接走bool类型触发式通知而非记录数量.
@@ -138,6 +142,7 @@ struct RegionDectectionInfo
 	    Outpost,           ///< 前哨增益点
 	    Base,              ///< 基地增益点
 	    Center;            ///< 中心增益点(RMUL)
+	bool operator==(const RegionDectectionInfo&) const = default;
 };
 #pragma pack(pop)
 
@@ -158,6 +163,7 @@ struct OccupationEvent
 	    Outpost,              ///< 前哨增益点
 	    Base,                 ///< 基地增益点
 	    Center;               ///< 中心增益点(RMUL)
+	bool operator==(const OccupationEvent&) const = default;
 };
 
 /**
@@ -168,6 +174,7 @@ struct RuneEvent
 {
 	RuneState SmallState; ///< 小符状态
 	RuneState LargeState; ///< 大符状态
+	bool operator==(const RuneEvent&) const = default;
 };
 
 /**
@@ -191,6 +198,7 @@ struct DamageEvent
 {
 	std::uint8_t ArmorId; ///< 装甲板/测速模块ID
 	DamageSource Source;  ///< 伤害源(伤害类型)
+	bool operator==(const DamageEvent&) const = default;
 };
 
 /**
@@ -201,6 +209,7 @@ struct ShootEvent
 {
 	Hertz<std::uint8_t> Freq; ///< 弹速 (单位赫兹)
 	BulletSpeed InitialSpeed; ///< 射击初速度 (m/s)
+	bool operator==(const ShootEvent&) const = default;
 };
 
 #pragma endregion

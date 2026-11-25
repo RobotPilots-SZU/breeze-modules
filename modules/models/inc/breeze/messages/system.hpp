@@ -20,7 +20,9 @@ namespace breeze::models::messages
  *
  */
 struct TimeStampSync : TimeStamp
-{};
+{
+	bool operator==(const TimeStampSync&) const = default;
+};
 
 /**
  * @brief 电源管理消息
@@ -32,6 +34,7 @@ struct PowerManagementInfo
 	bool Gimbal;  ///< 云台是否供电
 	bool Chassis; ///< 底盘是否供电
 	bool Shooter; ///< 发射机构是否供电
+	bool operator==(const PowerManagementInfo&) const = default;
 };
 
 } // namespace breeze::models::messages

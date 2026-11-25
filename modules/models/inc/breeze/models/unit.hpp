@@ -23,6 +23,7 @@ namespace breeze::models
 struct Percentage
 {
 	std::int8_t Value; ///< 整数值, 可正可负, 绝对值 <= 100
+	bool operator==(const Percentage&) const = default;
 };
 
 /**
@@ -52,6 +53,7 @@ template <typename T>
 struct Joule
 {
 	T Value;
+	bool operator==(const Joule&) const = default;
 };
 
 /**
@@ -61,6 +63,7 @@ template <typename T>
 struct Watt
 {
 	T Value;
+	bool operator==(const Watt&) const = default;
 };
 
 /**
@@ -72,6 +75,7 @@ template <typename T>
 struct Degree
 {
 	T Value;
+	bool operator==(const Degree&) const = default;
 };
 
 /**
@@ -83,6 +87,7 @@ template <typename T>
 struct Radian
 {
 	T Value;
+	bool operator==(const Radian&) const = default;
 };
 
 /**
@@ -93,6 +98,7 @@ template <typename T>
 struct Hertz
 {
 	T Value;
+	bool operator==(const Hertz&) const = default;
 };
 
 /**
@@ -104,6 +110,7 @@ template <typename T>
 struct Meter
 {
 	T Value;
+	bool operator==(const Meter&) const = default;
 };
 
 /**
@@ -114,6 +121,7 @@ template <typename T>
 struct Vec2
 {
 	T X, Y;
+	bool operator==(const Vec2&) const = default;
 };
 
 /**
@@ -124,6 +132,7 @@ template <typename T>
 struct Vec3
 {
 	T X, Y, Z;
+	bool operator==(const Vec3&) const = default;
 };
 
 /**
@@ -151,6 +160,7 @@ struct Posture
 	 * Yaw: 头往左扭为正. 正前方为0.
 	 */
 	Degree<float> Pitch, Roll, Yaw;
+	bool operator==(const Posture&) const = default;
 };
 
 /**

@@ -65,6 +65,7 @@ enum class PenaltyLevel : std::uint8_t
 struct Health
 {
 	std::uint16_t Value;
+	bool operator==(const Health&) const = default;
 };
 /**
  * @brief 热量数据类型
@@ -73,6 +74,7 @@ struct Health
 struct Heat
 {
 	std::uint16_t Value;
+	bool operator==(const Heat&) const = default;
 };
 
 /**
@@ -82,6 +84,7 @@ struct Heat
 struct AmmoCount
 {
 	std::uint16_t Value;
+	bool operator==(const AmmoCount&) const = default;
 };
 
 /**
@@ -100,7 +103,9 @@ enum AmmoKind : std::uint8_t
  *
  */
 struct BulletSpeed : Meter<float>
-{};
+{
+	bool operator==(const BulletSpeed&) const = default;
+};
 
 /**
  * @brief 机器人等级
@@ -108,6 +113,7 @@ struct BulletSpeed : Meter<float>
 struct Level
 {
 	std::uint8_t Value;
+	bool operator==(const Level&) const = default;
 };
 
 /**
@@ -120,6 +126,7 @@ struct Pose
 {
 	Vec2<float> Pos;           ///< 平面坐标
 	Degree<float> Orientation; ///< 朝向. 正北(地图y+)为0度, 正向为顺时针, 范围 0~360
+	bool operator==(const Pose&) const = default;
 };
 
 /**
@@ -133,6 +140,7 @@ struct Buffs
 	Heat Cooling;        ///< 每秒热量冷却的量
 	Percentage Defence;  ///< 防御增益/减益百分比. 正为增益, 负为减益.
 	Percentage Attack;   ///< 攻击增益/减益百分比. 正为增益, 负为减益.
+	bool operator==(const Buffs&) const = default;
 };
 
 enum class MajorFocusType : std::uint8_t
@@ -192,6 +200,7 @@ enum class DamageSource : std::uint8_t
 struct EconomyPoint
 {
 	std::uint16_t Value;
+	bool operator==(const EconomyPoint&) const = default;
 };
 
 /**
@@ -291,7 +300,9 @@ constexpr auto HEALTH_ROBOT_IDS = []() constexpr {
  *
  */
 struct RobotHealths : IndexedEnumArray<RobotShortId, Health, HEALTH_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotHealths&) const = default;
+};
 
 /**
  * @brief 有发单量的机器人索引表
@@ -307,7 +318,9 @@ constexpr auto AMMO_ROBOT_IDS = []() constexpr {
  *
  */
 struct RobotAmmos : IndexedEnumArray<RobotShortId, AmmoCount, AMMO_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotAmmos&) const = default;
+};
 
 constexpr auto LEVEL_ROBOT_IDS = []() constexpr {
 	using enum RobotShortId;
@@ -318,7 +331,9 @@ constexpr auto LEVEL_ROBOT_IDS = []() constexpr {
  *
  */
 struct RobotLevels : IndexedEnumArray<RobotShortId, Level, LEVEL_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotLevels&) const = default;
+};
 
 /**
  * @brief 有热量的机器人索引表
@@ -331,7 +346,9 @@ constexpr auto HEAT_ROBOT_IDS = AMMO_ROBOT_IDS;
  *
  */
 struct RobotHeats : IndexedEnumArray<RobotShortId, Heat, HEAT_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotHeats&) const = default;
+};
 
 /**
  * @brief 有弹速的机器人索引表
@@ -343,7 +360,9 @@ constexpr auto BULLET_SPEED_ROBOT_IDS = AMMO_ROBOT_IDS;
  *
  */
 struct RobotBulletSpeeds : IndexedEnumArray<RobotShortId, BulletSpeed, BULLET_SPEED_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotBulletSpeeds&) const = default;
+};
 
 /**
  * @brief 地面机器人集合
@@ -363,7 +382,9 @@ constexpr auto POWER_ROBOT_IDS = GROUND_ROBOT_IDS;
  *
  */
 struct RobotPowers : IndexedEnumArray<RobotShortId, Watt<std::uint8_t>, POWER_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotPowers&) const = default;
+};
 
 /**
  * @brief 有坐标的机器人索引表
@@ -373,7 +394,9 @@ struct RobotPowers : IndexedEnumArray<RobotShortId, Watt<std::uint8_t>, POWER_RO
 constexpr auto POSE_ROBOT_IDS = ROBOT_SHORT_ID_VALUES;
 
 struct RobotPoses : IndexedEnumArray<RobotShortId, Pose, POSE_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotPoses&) const = default;
+};
 
 /**
  * @brief 有Buff的机器人索引表
@@ -387,20 +410,28 @@ constexpr auto BUFF_ROBOT_IDS = ROBOT_SHORT_ID_VALUES;
  *
  */
 struct RobotBuffs : IndexedEnumArray<RobotShortId, Buffs, BUFF_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotBuffs&) const = default;
+};
 
 /** @brief 机器人整车性能体系集合. */
 struct RobotMajorFocuses : IndexedEnumArray<RobotShortId, MajorFocusType, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotMajorFocuses&) const = default;
+};
 
 /** @brief 机器人底盘性能体系集合. */
 struct RobotChassisFocuses : IndexedEnumArray<RobotShortId, ChassisFocusType, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotChassisFocuses&) const = default;
+};
 
 /** @brief 机器人发射机构性能体系集合. */
 struct RobotLaunchingMechanismFocuses
     : IndexedEnumArray<RobotShortId, LaunchingMechanismFocusType, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotLaunchingMechanismFocuses&) const = default;
+};
 
 /**
  * @brief 单侧机器人的比赛数据, 按领域组件分别索引机器人.
@@ -415,6 +446,7 @@ struct RobotInfos
 	RobotMajorFocuses MajorFocuses;
 	RobotChassisFocuses ChassisFocuses;
 	RobotLaunchingMechanismFocuses LaunchingMechanismFocuses;
+	bool operator==(const RobotInfos&) const = default;
 };
 
 /**
@@ -422,13 +454,17 @@ struct RobotInfos
  *
  */
 struct RobotOutofCombats : IndexedEnumArray<RobotShortId, bool, BUFF_ROBOT_IDS, ROBOT_SHORT_ID_VALUES>
-{};
+{
+	bool operator==(const RobotOutofCombats&) const = default;
+};
 
 /**
  * @brief 烧饼姿态持续时间集合
  *
  */
 struct SentryStanceDurations : IndexedEnumArray<SentryStance, Seconds<std::uint8_t>, SENTRY_STANCES, SENTRY_STANCES>
-{};
+{
+	bool operator==(const SentryStanceDurations&) const = default;
+};
 
 } // namespace breeze::models

@@ -58,6 +58,7 @@ struct RobotShortIdInfo
 {
 	RobotType Type;
 	std::uint8_t Digit;
+	bool operator==(const RobotShortIdInfo&) const = default;
 };
 
 /**
@@ -75,6 +76,7 @@ struct RobotId
 {
 	RobotShortId ShortId;
 	TeamKind Team;
+	bool operator==(const RobotId&) const = default;
 };
 
 /**
