@@ -38,6 +38,8 @@ public:
 	 */
 	ramen::Pullable<etl::span<const std::byte>> OutReceiveWait;
 
+	void Start();
+
 	struct Config
 	{
 		std::uint16_t SelfId;

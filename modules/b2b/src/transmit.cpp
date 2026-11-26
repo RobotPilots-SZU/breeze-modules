@@ -75,5 +75,6 @@ Transmitter::Transmitter(const device* dev, Config conf)
 }
 
 Transmitter::Impl* Transmitter::P() { return std::launder(reinterpret_cast<Impl*>(_storage)); }
+void Transmitter::Start() { P()->Start(); }
 
 } // namespace breeze::b2b
