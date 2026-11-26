@@ -42,8 +42,10 @@ public:
 
 	struct Config
 	{
-		std::uint16_t SelfId;
-		std::uint16_t TargetId;
+		std::uint16_t RxDataId; ///< 接收普通数据的CAN ID
+		std::uint16_t TxFcId;   ///< 为接收的数据回复FC的CAN ID
+		std::uint16_t TxDataId; ///< 发送普通数据的CAN ID
+		std::uint16_t RxFcId;   ///< 为发送的数据接收FC的CAN ID, 不得与RxDataId相同
 		etl::span<std::byte> Buffer;
 	};
 
@@ -51,8 +53,7 @@ public:
 	 * @brief Transmitter 构造
 	 *
 	 * @param dev can总线设备
-	 * @param selfId 当前流控节点的CAN Id
-	 * @param targetId 对方流控节点的CAN Id
+	 * @param conf 两个方向的数据与FC地址配置
 	 */
 	explicit Transmitter(const device* dev, Config conf);
 	~Transmitter();

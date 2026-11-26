@@ -10,6 +10,9 @@
 #include <ramenx/async.hpp>
 #include <zephyr/canbus/isotp.h>
 #include <zephyr/device.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(breeze_b2b_transmit);
 
 namespace breeze::b2b
 {
@@ -19,16 +22,27 @@ struct Transmitter::Impl
 	const device* Dev;
 	isotp_send_ctx SendCtx{};
 	isotp_recv_ctx RecvCtx{};
-	isotp_msg_id TxAddr;
-	isotp_msg_id RxAddr;
+	isotp_msg_id RxDataAddr;
+	isotp_msg_id TxFcAddr;
+	isotp_msg_id TxDataAddr;
+	isotp_msg_id RxFcAddr;
 	isotp_fc_opts FcOpts{.bs = 8, .stmin = 5};
 	etl::array<std::byte, 512> RxBuffer;
 
+	static isotp_msg_id Address(std::uint16_t id)
+	{
+		isotp_msg_id address{.flags = ISOTP_MSG_EXT_ADDR};
+		address.std_id = id;
+		return address;
+	}
+
 	// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-	Impl(const device* dev, std::uint16_t selfId, std::uint16_t targetId)
+	Impl(const device* dev, Config conf)
 	    : Dev(dev),
-	      TxAddr({.std_id = targetId & static_cast<std::uint16_t>(0x7FFu), .flags = ISOTP_MSG_EXT_ADDR}),
-	      RxAddr({.std_id = selfId & static_cast<std::uint16_t>(0x7FFu), .flags = ISOTP_MSG_EXT_ADDR})
+	      RxDataAddr(Address(conf.RxDataId)),
+	      TxFcAddr(Address(conf.TxFcId)),
+	      TxDataAddr(Address(conf.TxDataId)),
+	      RxFcAddr(Address(conf.RxFcId))
 	{
 		assert(dev != nullptr);
 		assert(device_is_ready(dev));
@@ -41,7 +55,7 @@ struct Transmitter::Impl
 			assert(ret == 0 || ret == -EALREADY);
 		}
 		{
-			auto ret = isotp_bind(&RecvCtx, Dev, &RxAddr, &TxAddr, &FcOpts, K_FOREVER);
+			auto ret = isotp_bind(&RecvCtx, Dev, &RxDataAddr, &TxFcAddr, &FcOpts, K_FOREVER);
 			assert(ret == 0);
 		}
 	}
@@ -49,19 +63,44 @@ struct Transmitter::Impl
 	void Send(etl::span<const std::byte> payload)
 	{
 		auto data = reinterpret_cast<const std::uint8_t*>(payload.data());
-		isotp_send(&SendCtx, Dev, data, payload.size(), &TxAddr, &RxAddr, nullptr, nullptr);
+		const auto ret = isotp_send(&SendCtx, Dev, data, payload.size(), &TxDataAddr, &RxFcAddr, nullptr, nullptr);
+		if (ret != ISOTP_N_OK)
+		{
+			LOG_ERR("ISO-TP send failed: %d", ret);
+		}
 	}
 
 	etl::span<const std::byte> Receive()
 	{
 		auto& buffer = RxBuffer;
-		auto received = isotp_recv(&RecvCtx, reinterpret_cast<std::uint8_t*>(buffer.data()), buffer.size(), K_FOREVER);
-		if (received > ISOTP_N_OK)
+		std::size_t total = 0;
+		bool oversized = false;
+		// NOLINTNEXTLINE(cppcoreguidelines-init-variables)
+		int remaining;
+		do
 		{
-			return {buffer.data(), static_cast<std::size_t>(received)};
-		}
+			net_buf* chunk = nullptr;
+			remaining = isotp_recv_net(&RecvCtx, &chunk, K_FOREVER);
+			if (remaining < 0)
+			{
+				LOG_ERR("ISO-TP receive failed: %d", remaining);
+				return {};
+			}
+			const auto length = net_buf_frags_len(chunk);
+			oversized = oversized || length > buffer.size() - total;
+			if (!oversized)
+			{
+				total += net_buf_linearize(buffer.data() + total, buffer.size() - total, chunk, 0, length);
+			}
+			net_buf_unref(chunk);
+		} while (remaining != 0);
 
-		return {};
+		if (oversized)
+		{
+			LOG_ERR("ISO-TP message exceeds receive buffer");
+			return {};
+		}
+		return {buffer.data(), total};
 	}
 };
 
@@ -71,7 +110,7 @@ Transmitter::Transmitter(const device* dev, Config conf)
       OutReceiveWait([this](auto& out) { out = P()->Receive(); })
 {
 	static_assert(sizeof(Impl) <= IMPL_SIZE);
-	std::construct_at(P(), dev, conf.SelfId, conf.TargetId);
+	std::construct_at(P(), dev, conf);
 }
 
 Transmitter::Impl* Transmitter::P() { return std::launder(reinterpret_cast<Impl*>(_storage)); }

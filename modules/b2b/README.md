@@ -31,3 +31,13 @@ TP_PAYLOAD --> B2B & Com
 
 - 传输层: 采用CAN的 `ISO-TP` 进行传输.
 - 表现层: 提供 `B2B Cast Proto`协议, 将结构体与静态ID强转为字节流来传输. 兼容其他表现层, 比如 `RP Proto`.
+
+## ISO-TP 地址与接收
+
+`Transmitter::Config` 分别配置 `RxDataId`、`TxFcId`、`TxDataId`、`RxFcId`。
+对端的 `TxDataId` 应与本端的 `RxDataId` 一致，对端的 `RxFcId` 应与本端的
+`TxFcId` 一致。数据与 FC 使用独立 CAN ID，避免普通接收和 FC 接收过滤器重叠。
+
+传输使用标准 11 位 CAN ID、ISO-TP 扩展寻址（地址字节为 0）、`bs=8` 和
+`stmin=5`。接收通过 `isotp_recv_net()` 收齐整条报文后输出，最大 512 字节；
+超出大小的报文会被读完并丢弃。`OutReceiveWait` 返回的 span 在下一次接收前有效。
