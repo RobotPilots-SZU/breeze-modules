@@ -85,6 +85,7 @@ enum class FiringMode : std::uint8_t
  */
 enum class FiringIntent : std::uint8_t
 {
+	Sleep,		 ///< 卸力，退出发射状态
 	Idle,        ///< 停止射击
 	Once,        ///< 单发
 	Continuosly, ///< 连发

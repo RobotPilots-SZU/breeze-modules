@@ -14,21 +14,8 @@
 
 #pragma once
 
-#include <cstdint>
-
 namespace breeze::shooter
 {
-/**
- * @brief 应用层下发的发射命令
- *
- */
-enum class ShooterCommand : std::uint8_t
-{
-	Sleep, ///< 卸力并复位控制状态
-	Idle,  ///< 唤醒并待命
-	Once,  ///< 进入该命令时请求单发
-	Repeat ///< 持续连发
-};
 
 /**
  * @brief 单个摩擦轮的设备反馈

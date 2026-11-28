@@ -30,21 +30,15 @@ Shooter<FricCount>::Shooter(const ShooterConfig<FricCount>& conf, std::index_seq
 {}
 
 template <std::size_t FricCount>
-void Shooter<FricCount>::Start()
-{
-	Reset();
-}
-
-template <std::size_t FricCount>
 void Shooter<FricCount>::Update(const ShooterInput<FricCount>& input, float dtMs)
 {
-	if (input.Command == ShooterCommand::Sleep)
+	if (input.Command == breeze::models::FiringIntent::Sleep)
 	{
 		Reset();
 		return;
 	}
 	const bool singleRequested =
-	    input.Command == ShooterCommand::Once && _controlInfo.LastCommand != ShooterCommand::Once;
+	    input.Command == breeze::models::FiringIntent::Once && _controlInfo.LastCommand != breeze::models::FiringIntent::Once;
 	_controlInfo.LastCommand = input.Command;
 	if (_controlInfo.State == ShootState::Sleep)
 	{
@@ -61,7 +55,7 @@ void Shooter<FricCount>::Update(const ShooterInput<FricCount>& input, float dtMs
 		{
 			command.Command = FeedCommand::Single;
 		}
-		else if (input.Command == ShooterCommand::Repeat && input.FeedTargetSpeed > 0.0f)
+		else if (input.Command == breeze::models::FiringIntent::Continuosly && input.FeedTargetSpeed > 0.0f)
 		{
 			command.Command = FeedCommand::Repeat;
 			command.TargetSpeed = input.FeedTargetSpeed;

@@ -21,7 +21,7 @@ namespace breeze::shooter
 namespace
 {
 static_assert(
-	std::atomic<ShooterCommand>::is_always_lock_free && std::atomic<float>::is_always_lock_free
+	std::atomic<breeze::models::FiringIntent>::is_always_lock_free && std::atomic<float>::is_always_lock_free
 );
 } // namespace
 
@@ -29,7 +29,7 @@ template <std::size_t FricCount>
 struct Module<FricCount>::Impl
 {
 	Shooter<FricCount> Controller;
-	std::atomic<ShooterCommand> Command{ShooterCommand::Sleep};
+	std::atomic<breeze::models::FiringIntent> Command{breeze::models::FiringIntent::Sleep};
 	etl::array<std::atomic<float>, FricCount> FricTargetSpeeds{};
 	std::atomic<float> FeedTargetSpeed{};
 	explicit Impl(const ShooterConfig<FricCount>& config)
@@ -65,7 +65,7 @@ template <std::size_t FricCount>
 Module<FricCount>::Module(const ShooterConfig<FricCount>& config)
     : In{
           .Tick = [this](const float& dtMs) { _impl->Update(*this, dtMs); },
-          .Command = [this](const ShooterCommand& command) { _impl->Command.store(command, std::memory_order_relaxed); },
+          .Command = [this](const breeze::models::FiringIntent& command) { _impl->Command.store(command, std::memory_order_relaxed); },
           .FricTargetSpeeds = [this](const etl::array<float, FricCount>& speeds) {
 	          for (std::size_t i = 0; i < FricCount; ++i)
 	          {
@@ -78,12 +78,6 @@ Module<FricCount>::Module(const ShooterConfig<FricCount>& config)
 {
 	static Impl impl(config);
 	_impl = &impl;
-}
-
-template <std::size_t FricCount>
-void Module<FricCount>::Start()
-{
-	_impl->Controller.Start();
 }
 
 template class Module<2>;

@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <breeze/models/control.hpp>
 #include "config.hpp"
 #include "io.hpp"
 #include <cstddef>
@@ -24,8 +25,8 @@ namespace breeze::shooter
 /**
  * @brief 常驻的发射模块, 通过外部 Tick 输入驱动 Shooter, 不持有线程
  * @tparam FricCount 摩擦轮数量, 最多 6 路, 当前实例化 2、3、6 路
- * @note 应用中只构造一个实例, 连接端口后调用一次 Start; 输入使用各自的最新值.
- *       Start 后由单一周期源串行推送 Tick, 控制在推送者上下文执行.
+ * @note 应用中只构造一个实例, 构造后处于 Sleep; 输入使用各自的最新值.
+ *       连接端口后由单一周期源串行推送 Tick, 控制在推送者上下文执行.
  */
 template <std::size_t FricCount>
 class Module
@@ -40,7 +41,7 @@ public:
 	struct Input
 	{
 		ramen::Pushable<float> Tick;             ///< 每次推送执行一个控制周期, 输入为实际间隔(ms)
-		ramen::Pushable<ShooterCommand> Command; ///< 默认为 Sleep; 由应用层决定唤醒、待命或发射
+		ramen::Pushable<breeze::models::FiringIntent> Command; ///< 默认为 Sleep; 由应用层决定唤醒、待命或发射
 		ramen::Pushable<etl::array<float, FricCount>> FricTargetSpeeds; ///< 摩擦轮目标转速(rpm)，正值
 		ramen::Pushable<float> FeedTargetSpeed;                         ///< 连发目标角速度(°/s), 正值，为零时暂停连发；
 		etl::array<ramen::Puller<breeze::shooter::FricFeedback>, FricCount> FricFeedback{}; ///< 摩擦轮反馈
@@ -66,13 +67,6 @@ public:
 	 * @param config 发射控制配置
 	 */
 	explicit Module(const ShooterConfig<FricCount>& config);
-
-	/**
-	 * @brief 初始化内部控制, 每个对象在外部周期源启动前调用一次
-	 *
-	 * @note 不创建线程或启动周期源; 唤醒、发射与休眠由 In.Command 决定.
-	 */
-	void Start();
 
 	Module(const Module&) = delete;
 	Module(Module&&) = delete;

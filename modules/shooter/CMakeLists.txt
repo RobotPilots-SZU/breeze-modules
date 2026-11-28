@@ -16,4 +16,5 @@ target_link_libraries(breeze_shooter
     PRIVATE
         ramenx
         robotpilots::algorithm
+        breeze::module::models
 )

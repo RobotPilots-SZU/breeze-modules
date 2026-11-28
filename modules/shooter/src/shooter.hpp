@@ -15,6 +15,7 @@
 #include "feed.hpp"
 #include "fric.hpp"
 #include "state.hpp"
+#include <breeze/models/control.hpp>
 #include <breeze/shooter/config.hpp>
 #include <breeze/shooter/io.hpp>
 #include <cstddef>
@@ -31,7 +32,7 @@ namespace breeze::shooter
 template <std::size_t FricCount>
 struct ShooterInput
 {
-	ShooterCommand Command{ShooterCommand::Sleep}; ///< Sleep 卸力, 其它命令唤醒并准备拨弹
+	breeze::models::FiringIntent Command{breeze::models::FiringIntent::Sleep}; ///< Sleep 卸力, 其它命令唤醒并准备拨弹
 	etl::array<float, FricCount> FricTargetSpeeds{}; ///< 各轮目标转速大小(rpm), 非负
 	float FeedTargetSpeed{}; ///< 连发目标角速度大小(°/s), 非负, 零值暂停连发
 	FeedFeedback Feed{}; ///< 拨盘轴原始反馈与设备层堵转状态
@@ -45,7 +46,7 @@ struct ShooterInput
 struct ShooterControlInfo
 {
 	ShootState State{ShootState::Sleep}; ///< 整机准备阶段
-	ShooterCommand LastCommand{ShooterCommand::Sleep}; ///< 上一周期命令, 用于单发边沿检测
+	breeze::models::FiringIntent LastCommand{breeze::models::FiringIntent::Sleep}; ///< 上一周期命令, 用于单发边沿检测
 	bool FricReversing{}; ///< 整组摩擦轮是否正在反转清堵
 	float FricReverseElapsedMs{}; ///< 本次摩擦轮反转已持续时间(ms)
 };
@@ -68,21 +69,13 @@ public:
 	explicit Shooter(const ShooterConfig<FricCount>& conf);
 
 	/**
-	 * @brief 复位控制状态和输出, 进入 Sleep
-	 *
-	 * @note 当前直接调用 Reset; 后续由调用方周期调用 Update 并传入命令和目标速度.
-	 *       本函数不创建线程或周期调度.
-	 */
-	void Start();
-
-	/**
 	 * @brief 更新整机生命周期、摩擦轮与拨盘控制
 	 *
 	 * @param input 本周期完整输入
 	 * @param dtMs 控制周期(ms)
 	 * @note Sleep 立即中止动作并卸力; 其它命令唤醒, 准备完成后才接收拨弹请求.
 	 *       Init、忙碌或未到速时收到的单发边沿均不缓存; 保持 Once 不重复发射.
-	 *       Repeat 且拨盘目标速度大于零时连发; Idle、未到速或摩擦轮清堵时下发 Hold.
+	 *       Continuosly 且拨盘目标速度大于零时连发; Idle、未到速或摩擦轮清堵时下发 Hold.
 	 *       Hold 下已开始的单发或拨盘清堵继续完成; 拨盘目标速度为零不禁止单发.
 	 */
 	void Update(const ShooterInput<FricCount>& input, float dtMs);
